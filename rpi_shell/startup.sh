@@ -4,12 +4,15 @@
 # waiting update.sh exited
 sleep 1s  
 
-_R="a"
 #update update.sh bash
-ping github.com -c 1 > /dev/null 2 > $_R
-if [ $_R -eq 0 ]; then
+_R=$(ping github.com -c 1)
+_K1="ttl="
+_K2="time="
+if [[ $_R == *$_K1* ]]      #if [[ $_R == *$_K1* -a $_R == *$_K2* ]]
+then
     echo "Network Connection OK!"
-    git checkout update.sh
+	echo "Ready Update update.sh file"
+    git checkout startup.sh
     git pull origin master
 else
     echo "Network Connection Error!"
