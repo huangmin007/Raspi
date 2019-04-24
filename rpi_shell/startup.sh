@@ -7,6 +7,8 @@ sleep 1s
 git checkout update.sh
 git pull origin master
 
+sudo chmode 777 update.sh
+
 #test echo
 echo "Hello"
 
