@@ -7,7 +7,7 @@ git pull origin master
 
 echo "ready startup ..."
 sudo chmod 777 startup.sh
-sleep 2s
+sleep 1s
 
 echo "startup ..."
 #startup
