@@ -5,8 +5,14 @@
 sleep 1s  
 
 #update update.sh bash
-git checkout update.sh
-git pull origin master
+ping github.com -c 1 > /dev/null 2 > &1
+if [ $? -eq 0 ]; then
+    echo "Network Connection OK!"
+    git checkout update.sh
+    git pull origin master
+else
+    echo "Network Connection Error!"
+fi
 
 sudo chmod 777 update.sh
 
