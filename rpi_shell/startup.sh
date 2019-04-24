@@ -1,7 +1,8 @@
 #!/bin/bash
 #filename RaspiTest
 
-#update this bash
+#update update.sh bash
+git checkout update.sh
 git pull origin master
 
 #test echo
