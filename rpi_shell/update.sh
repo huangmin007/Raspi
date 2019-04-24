@@ -1,10 +1,16 @@
 #!/bin/bash
 #filename update
 
+
 #update startup.sh bash
-ping github.com -c 1 > /dev/null 2 > &1
-if [ $? -eq 0 ]; then
+_R=$(ping github.com -c 1)
+_K1="ttl="
+_K2="time="
+#if [[ $_R == *$_K1* -a $_R == *$_K2* ]]
+if [[ $_R == *$_K1* ]]
+then
     echo "Network Connection OK!"
+	echo "Ready Update startup.sh file"
     git checkout startup.sh
     git pull origin master
 else
