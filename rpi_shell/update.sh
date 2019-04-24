@@ -8,6 +8,8 @@ echo "RS"
 echo $_R
 echo "RE"
 
+sleep 2s
+
 #startup
 sudo ./startup.sh
 
