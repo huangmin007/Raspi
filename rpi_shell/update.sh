@@ -2,10 +2,10 @@
 #filename update
 
 #update bash
-_R=$(git checkout startup.sh) || true
+git checkout startup.sh
+git pull origin master
 
 echo "RS"
-echo $_R
 echo "RE"
 
 sudo chmod 777 startup.sh
