@@ -2,7 +2,7 @@
 #filename update
 
 #update bash
-_R=$(git pull origin master)
+_R=$(git pull origin master) || true
 
 echo "RS"
 echo $_R
