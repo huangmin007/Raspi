@@ -3,6 +3,6 @@
 
 
 echo "Hello"
-_IP=$("hostname -I) || true
+_IP=$(hostname -I) || true
 echo $_IP
 
