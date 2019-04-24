@@ -1,18 +1,15 @@
 #!/bin/bash
 #filename update
 
-#update bash
+#update startup.sh bash
 git checkout startup.sh
 git pull origin master
 
-echo "RS"
-echo "RE"
-
-sudo chmod 777 startup.sh
-
 echo "ready startup ..."
+sudo chmod 777 startup.sh
 sleep 2s
 
+echo "startup ..."
 #startup
 sudo ./startup.sh
 
