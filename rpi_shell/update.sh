@@ -14,4 +14,4 @@ sleep 2s
 sudo ./startup.sh
 
 #exit
-exit 0
+#exit 0
