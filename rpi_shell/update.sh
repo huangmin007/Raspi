@@ -8,6 +8,7 @@ echo "RS"
 echo $_R
 echo "RE"
 
+echo "ready startup ..."
 sleep 2s
 
 #startup
