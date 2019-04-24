@@ -13,3 +13,5 @@ echo "World"
 #test
 _IP=$(hostname -I) || true
 echo $_IP
+
+echo "test"
