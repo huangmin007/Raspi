@@ -1,0 +1,6 @@
+
+
+Program("test", ["test_mcp23017.c"],
+		LIBS = "wiringPi",
+		CCFLASS = ["-g", "-Wall"]
+	   )

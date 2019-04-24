@@ -1,0 +1,5 @@
+
+
+Program('test', ['test_74x595.c'],
+		LIBS = 'wiringPi',
+		CCFLASS = ['-g', '-Wall'])
