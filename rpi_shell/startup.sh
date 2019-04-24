@@ -14,4 +14,4 @@ echo "World"
 _IP=$(hostname -I) || true
 echo $_IP
 
-echo "testa"
+echo "test"
