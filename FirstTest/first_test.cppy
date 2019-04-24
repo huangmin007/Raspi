@@ -1,0 +1,17 @@
+#include <wiringPi.h>
+
+int outPin = 7;
+
+int main()
+{
+	wiringPiSetupGpio();
+	pinMode(outPin, OUTPUT);
+
+	while(true)
+	{
+		digitalWrite(outPin, !digitalRead(outPin));
+		delay(1000);
+	}
+
+	return 0;
+}
