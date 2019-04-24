@@ -4,9 +4,10 @@
 # waiting update.sh exited
 sleep 1s  
 
+_R="a"
 #update update.sh bash
-ping github.com -c 1 > /dev/null 2 > &1
-if [ $? -eq 0 ]; then
+ping github.com -c 1 > /dev/null 2 > $_R
+if [ $_R -eq 0 ]; then
     echo "Network Connection OK!"
     git checkout update.sh
     git pull origin master
