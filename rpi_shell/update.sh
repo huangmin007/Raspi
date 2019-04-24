@@ -2,11 +2,13 @@
 #filename update
 
 #update bash
-_R=$(git pull origin master) || true
+_R=$(git checkout startup.sh) || true
 
 echo "RS"
 echo $_R
 echo "RE"
+
+sudo chmod 777 startup.sh
 
 echo "ready startup ..."
 sleep 2s
