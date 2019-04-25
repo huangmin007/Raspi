@@ -18,7 +18,12 @@ else
     echo "Network Connection Error!"
 fi
 
-sudo chmod 777 update.sh
+if [[ $SHELL == "/bin/hash" ]]
+then
+	sudo chmod 777 update.sh
+else
+	chmod 777 update.sh
+fi
 
 #Start Running bash
 #...
