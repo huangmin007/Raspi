@@ -18,7 +18,15 @@ else
 fi
 
 echo "ready startup ..."
-sudo chmod 777 startup.sh
+
+_S='echo $SHELL'
+if[[ "hash" == *$_S* ]]
+then
+	sudo chmod 777 startup.sh
+else
+	chmod 777 startup.sh
+fi
+
 sleep 1s
 
 echo "startup ..."
