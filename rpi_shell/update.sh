@@ -19,7 +19,7 @@ fi
 
 echo "ready startup ..."
 
-if[[ $SHELL == "/bin/hash" ]]
+if [[ $SHELL == "/bin/hash" ]]
 then
 	sudo chmod 777 startup.sh
 else
