@@ -21,10 +21,13 @@ echo "ready startup ..."
 
 #_SH=`echo $SHELL`
 _SH=$(echo $SHELL)
+echo $_SH
 if [[ $_SH == "/bin/hash" ]]
 then
+	echo "sudo ..."
 	sudo chmod 777 startup.sh
 else
+	echo "no ..."
 	chmod 777 startup.sh
 fi
 
