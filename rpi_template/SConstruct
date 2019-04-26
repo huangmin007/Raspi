@@ -1,0 +1,6 @@
+
+
+Program("main", ["main.c"],
+	   LIBS = ["wiringPi"],
+	   CCFLASS = ["-g", "-Wall"]
+		)
