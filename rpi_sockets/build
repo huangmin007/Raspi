@@ -1,6 +1,6 @@
 #!/bin/bash
 
 
-g++ -Wall -g TCPClient.cpp main.cpp -o main 
+g++ -Wall -g TCPClient.cpp main.cpp -o main -lpthread 
 
 

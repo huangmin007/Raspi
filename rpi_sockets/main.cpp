@@ -4,14 +4,14 @@
  *	main.c
  *	
  *********************************************************/
-
-#include <string>
+#include <iostream>
+#include <string.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <signal.h>
 //#include <wiringPi.h>
 #include "TCPClient.h"
-
+#include <unistd.h>
 using namespace std;
 
 // define macro
@@ -45,6 +45,20 @@ void loop();
 // variables
 TCPClient client;
 
+void receiveDataHandler(char *buffer, uint32_t length)
+{
+	char data[length] = {};
+	memcpy(data, buffer, length);
+	printf("data: %s\n", data);
+}
+void connectFailedHandler(int code)
+{
+	printf("connect failed : %d\n", code);
+}
+void connectCloseHandler()
+{
+	printf("socket close..\n");
+}
 
 // program main
 int main(int argc, char *argv[])
@@ -57,13 +71,24 @@ int main(int argc, char *argv[])
 	uint16_t port = 3000;
 
 	//client = TCPClient();
+	client.ConnectFailedCallback(connectFailedHandler);
+	client.ReceiveCallback(receiveDataHandler);
+	client.ConnectCloseCallback(connectCloseHandler);
 	client.Connect(addr, port);
-
 	//setup();
 
 	while(running)
 	{
+		if(!client.Connected())
+		{
+			sleep(3);
+			client.Connect(addr, port);
+			continue;
+		}
+
 	//	loop();
+		client.Send(addr, 14);
+		sleep(1);
 	}
 
 	printf("exit...\n");
