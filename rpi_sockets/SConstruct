@@ -1,6 +1,6 @@
 
 
-Program("test", ["test_apa102.c"],
-	   LIBS = ["wiringPi"],
+Program("main", ["TCPClient.cpp", "main.cpp"],
+	   LIBS = [""],
 	   CCFLASS = ["-g", "-Wall"]
 		)
