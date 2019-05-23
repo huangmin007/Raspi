@@ -11,6 +11,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
 #include <time.h>
@@ -27,6 +28,11 @@
 #define BSWAP_64(x)	((BSWAP_32(x) << 32) | BSWAP_32((x) >> 32))
 
 
+unsigned char END_FRAME[4] = {0xFF, 0x00, 0x00, 0x00};
+unsigned char START_FRAME[4] = {0x00, 0x00, 0x00, 0x00};
+
+void endFrame(uint32_t leds);
+void startFrame();
 int testWS2812();
 int runAPA102();
 void setup_sigaction();
@@ -62,7 +68,29 @@ void setup_sigaction()
 	sigaction(SIGTERM, &sa, NULL);
 }
 
-void setAPA102LED(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness)
+
+void startFrame()
+{
+    wiringPiSPIDataRW(0, START_FRAME, 4);
+}
+
+void endFrame(uint32_t leds)
+{
+    int len = leds / 32;
+    printf("lends:%d\n", len);
+    do
+    {
+	//printf("do\n");
+	//wiringPiSPIDataRW(0, END_FRAME, 4);
+	wiringPiSPIDataRW(0, (char *)0xFF, 1);
+	wiringPiSPIDataRW(0, (char *)0xFF, 1);
+	wiringPiSPIDataRW(0, (char *)0xFF, 1);
+	wiringPiSPIDataRW(0, (char *)0xFF, 1);
+    }
+    while(len --);
+}
+
+void setLed(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness)
 {
 	uint8_t color[4];
 	color[0] = 0B11100000 | (0B00011111 & brightness);
@@ -73,9 +101,29 @@ void setAPA102LED(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness)
 	wiringPiSPIDataRW(0, color, 4);
 }
 
+void clearFrame(uint16_t len)
+{
+    startFrame();
+    
+    uint32_t size = len * 4;
+    uint8_t *colors = (uint8_t *)malloc(size);
+
+    for(int i = 0; i < len ; i ++)
+    {
+	colors[i * 4 + 0] = 0xFF;
+	colors[i * 4 + 1] = 0x00;
+	colors[i * 4 + 2] = 0x00;
+	colors[i * 4 + 3] = 0x00;
+    }
+    wiringPiSPIDataRW(0, colors, size);
+
+    endFrame(len);
+}
+
+
 int runAPA102()
 {
-	if(wiringPiSPISetup(0, 24000000) < 0)
+	if(wiringPiSPISetup(0, 6000000) < 0)
 	{
 		printf("set spi failed...\n");
 		return -1;
@@ -84,18 +132,16 @@ int runAPA102()
 	uint32_t i = 0;
 						//birghtness B	   G     R
 	uint8_t color[32] = {
-						0B11111111, 0x00, 0x00, 0xFF,
+						0B11111111, 0x00, 0xFF, 0xFF,
 						0B11101111, 0x00, 0x00, 0xFF,
 						0B11100111, 0x00, 0x00, 0xFF,
 						0B11100011, 0x00, 0x00, 0xFF,
 						0B11100001, 0x00, 0x00, 0xFF,
 						0B11011111, 0x00, 0x00, 0xFF,
 						0B10011111, 0x00, 0x00, 0xFF,
-						0B10000011, 0x00, 0x00, 0xFF,
+						0B10000011, 0xFF, 0x00, 0xFF,
 	};
 
-	unsigned char startFrame[4] = {0x00, 0x00, 0x00, 0x00};
-	unsigned char endFrame[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 	
 	uint8_t brightness = 0;
 	unsigned char green[4] = {0xE0, 0x00, 0xFF, 0x00};
@@ -104,7 +150,7 @@ int runAPA102()
 	while(running)
 	{
 	    	//start frame
-		wiringPiSPIDataRW(0, startFrame, 4);
+		startFrame();
 
 		
 		brightness ++;
@@ -117,6 +163,8 @@ int runAPA102()
 		uint8_t data[sizeof(color)];
 		memcpy(data, color, sizeof(color));
 		wiringPiSPIDataRW(0, data, sizeof(data));
+
+
 		
 		
 		//green[0] = 0xE0 | ( 0x1F & brightness);
@@ -129,16 +177,20 @@ int runAPA102()
 
 		
 		//end frame
-		wiringPiSPIDataRW(0, endFrame, 4);
+		//wiringPiSPIDataRW(0, endFrame, 4);
 		//for(int i = 0; i < 8; i += 16)
 		//    wiringPiSPIDataRW(0, 0x00, 1);
+		endFrame(10);
 		
 		//printf("%02X\n",endFrame[1]);
 		delay(200);
 	}
+	delay(500);
+	printf("exit...\n");
 
 	//close all
-	wiringPiSPIDataRW(0, startFrame, 4);
+//	wiringPiSPIDataRW(0, startFrame, 4);
+	//startFrame();
 	unsigned char clear[40];
 	for(i = 0; i < 10; i ++)
 	{
@@ -146,12 +198,17 @@ int runAPA102()
 		clear[i * 4 + 1] = 0x00;
 		clear[i * 4 + 2] = 0x00;
 		clear[i * 4 + 3] = 0x00;
+	//	wiringPiSPIDataRW(0, END_FRAME, 4);
+	//	delay(100);
 	}
-	wiringPiSPIDataRW(0, clear, 40);
-	wiringPiSPIDataRW(0, endFrame, 4);
+	//wiringPiSPIDataRW(0, clear, 40);
+//	wiringPiSPIDataRW(0, endFrame, 4);
 	//for(int i = 0; i < 10; i += 16)
 	//    wiringPiSPIDataRW(0, 0x00, 1);
-
+	//endFrame(10);
+	clearFrame(10);
+	printf("exit okk\n");
+	delay(1000);
 	return 0;
 }
 
