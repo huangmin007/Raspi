@@ -77,17 +77,7 @@ void startFrame()
 void endFrame(uint32_t leds)
 {
     int len = leds / 32;
-    printf("lends:%d\n", len);
-    do
-    {
-	//printf("do\n");
-	//wiringPiSPIDataRW(0, END_FRAME, 4);
-	wiringPiSPIDataRW(0, (char *)0xFF, 1);
-	wiringPiSPIDataRW(0, (char *)0xFF, 1);
-	wiringPiSPIDataRW(0, (char *)0xFF, 1);
-	wiringPiSPIDataRW(0, (char *)0xFF, 1);
-    }
-    while(len --);
+    do{	wiringPiSPIDataRW(0, END_FRAME, 4); }  while(len --);
 }
 
 void setLed(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness)
