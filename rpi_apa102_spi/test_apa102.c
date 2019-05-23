@@ -98,14 +98,18 @@ int runAPA102()
 	unsigned char endFrame[4] = {0xFF, 0xFF, 0xFF, 0xFF};
 	
 	uint8_t brightness = 0;
+	unsigned char green[4] = {0xE0, 0x00, 0xFF, 0x00};
 
 	//open
 	while(running)
 	{
+	    	//start frame
 		wiringPiSPIDataRW(0, startFrame, 4);
+
 		
 		brightness ++;
-		if(brightness >= 0x1F)	brightness = 0;
+		if(brightness >= 0x1F)	brightness = 1;
+		
 		color[0] = 0B11100000 | (0B00011111 & brightness);
 
 		//printf("%02X\n", color[0]);
@@ -114,7 +118,20 @@ int runAPA102()
 		memcpy(data, color, sizeof(color));
 		wiringPiSPIDataRW(0, data, sizeof(data));
 		
+		
+		//green[0] = 0xE0 | ( 0x1F & brightness);
+		//for(int i = 0; i < 8; i ++)
+		//{
+		    //uint32_t *c = ((0xE0 | (0x1F & brightness)) < 32) | 0x0000FF00;
+		    //green[0] = 0xE0 | (0x1F & brightness);
+		//    wiringPiSPIDataRW(0, green, 4);
+		//}
+
+		
+		//end frame
 		wiringPiSPIDataRW(0, endFrame, 4);
+		//for(int i = 0; i < 8; i += 16)
+		//    wiringPiSPIDataRW(0, 0x00, 1);
 		
 		//printf("%02X\n",endFrame[1]);
 		delay(200);
@@ -132,6 +149,8 @@ int runAPA102()
 	}
 	wiringPiSPIDataRW(0, clear, 40);
 	wiringPiSPIDataRW(0, endFrame, 4);
+	//for(int i = 0; i < 10; i += 16)
+	//    wiringPiSPIDataRW(0, 0x00, 1);
 
 	return 0;
 }
