@@ -27,12 +27,106 @@
 #define BSWAP_32(x)	((BSWAP_16(x) << 16) | BSWAP_16((x) >> 16))
 #define BSWAP_64(x)	((BSWAP_32(x) << 32) | BSWAP_32((x) >> 32))
 
+struct WBGR;
+
+struct WBGR
+{
+    union
+    {	
+	struct
+	{
+	    union
+	    {
+		uint8_t bri;
+		uint8_t brightness;
+	    };
+	    union
+	    {
+		uint8_t b;
+		uint8_t blue;
+	    };
+	    union
+	    {
+		uint8_t g;
+		uint8_t green;
+	    };
+	    union
+	    {
+		uint8_t r;
+		uint8_t red;
+	    };
+	};
+
+	uint8_t raw[4];
+
+	uint32_t color;
+    };
+
+    inline WBGR() __attribute__((always_inline))
+    {
+	bri = 0xFF;
+    }
+
+    inline uint8_t& operator[] (uint8_t x) __attribute__((always_inline))
+    {
+	return raw[x];
+    }
+
+    inline const uint8_t& operator[] (uint8_t x) const __attribute__((always_inline))
+    {
+	return raw[x];
+    }
+
+    inline WBGR& operator= (const WBGR& wbgr) __attribute__((always_inline))
+    {
+   	bri = 0xE0 | ( 0x1F &  wbgr.bri);
+	b = wbgr.b;
+	g = wbgr.g;
+	r = wbgr.r;
+	return *this;
+    }
+
+    inline WBGR& operator= (uint32_t c) __attribute__((always_inline))
+    {
+	color = c;
+	return *this;
+    }
+
+    inline WBGR& setWBGR(uint8_t nbri, uint8_t nb, uint8_t ng, uint8_t nr) __attribute__((always_inline))
+    {
+	bri = 0xE0 | (0x1F & nbri);
+	b = nb;
+	g = ng;
+	r = nr;
+
+	return *this;
+    }
+
+    inline WBGR& setBrightness(uint8_t nbri) __attribute__((always_inline))
+    {
+	bri = 0xE0 | (0x1F & nbri);
+
+	return *this;
+    }
+
+    inline WBGR& setBGR(uint8_t nb, uint8_t ng, uint8_t nr) __attribute__((always_inline))
+    {
+	b = nb;
+	g = ng;
+	r = nr;
+	return *this;
+    }
+
+};
+
 
 unsigned char END_FRAME[4] = {0xFF, 0x00, 0x00, 0x00};
 unsigned char START_FRAME[4] = {0x00, 0x00, 0x00, 0x00};
 
 void endFrame(uint32_t leds);
 void startFrame();
+void clearFrame(uint16_t len);
+//void clearFrame(uint8_t *colors, uint32_t size);
 int testWS2812();
 int runAPA102();
 void setup_sigaction();
@@ -71,6 +165,7 @@ void setup_sigaction()
 
 void startFrame()
 {
+    //wiringPiSPIDataRW(0, WBGR(0x00000000), 4);
     wiringPiSPIDataRW(0, START_FRAME, 4);
 }
 
@@ -97,7 +192,7 @@ void clearFrame(uint16_t len)
     
     uint32_t size = len * 4;
     uint8_t *colors = (uint8_t *)malloc(size);
-
+    
     for(int i = 0; i < len ; i ++)
     {
 	colors[i * 4 + 0] = 0xFF;
@@ -108,9 +203,22 @@ void clearFrame(uint16_t len)
     wiringPiSPIDataRW(0, colors, size);
 
     endFrame(len);
+    free(colors);
 }
+/*
+void clearFrame(uint8_t *colors, uint32_t size)
+{
+    startFrame();
 
+    for(int i = 0; i < size; i ++)
+    {
+     	colors[i] = i % 4 == 0 ? 0xFF : 0x00;
+    }
+    wiringPiSPIDataRW(0, colors, size);
 
+    endFrame(size / 4);
+}
+*/
 int runAPA102()
 {
 	if(wiringPiSPISetup(0, 6000000) < 0)
