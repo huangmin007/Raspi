@@ -1,9 +1,20 @@
 
 
 Program("main", ["main.c"],
-	CPPPATH = [],		#include
+	CPPPATH = [],		#include head file
 	LIBS = ["wiringPi"],	#lib
 	LIBPATH = [],		#lib path
-	CCFLASS = ["-g", "-Wall"]
+	CCFLASS = ["-g", "-Wall"]	#encode args
 )
+
+
+#Example
+'''
+Program("main", ["main.cpp", "librplidar_sdk.a"],
+	CPPPATH = ["include"],
+	LIBS = [],
+	LIBAPTH = [],
+	CCFLASS = ["-g", "-o3", "-Wall"]
+)
+'''
 	
