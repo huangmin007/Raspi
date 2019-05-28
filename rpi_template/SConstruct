@@ -1,6 +1,9 @@
 
 
 Program("main", ["main.c"],
-	   LIBS = ["wiringPi"],
-	   CCFLASS = ["-g", "-Wall"]
-		)
+	CPPPATH = [],		#include
+	LIBS = ["wiringPi"],	#lib
+	LIBPATH = [],		#lib path
+	CCFLASS = ["-g", "-Wall"]
+)
+	
