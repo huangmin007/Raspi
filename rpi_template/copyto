@@ -1,0 +1,21 @@
+#!/bin/bash
+#filename copyto
+
+#echo $#
+#echo $0
+#echo $1
+
+_path=""
+
+if [ $# -le 0 ]		#-le <= 
+then
+    _path="../rpi_template_clone"
+else
+    _path=../$1
+fi
+
+echo "copyto $_path"
+
+cp -r ../rpi_template $_path
+
+
