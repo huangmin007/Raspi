@@ -21,6 +21,7 @@ int running = 1;	//rinning
 void ctrl_c_handler(int signum)
 {
 	running = 0;
+	printf("signal arg:%d\n", signum);
 }
 void setup_sigaction()
 {
@@ -30,6 +31,8 @@ void setup_sigaction()
 	};
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
+	sigaction(SIGKILL, &sa, NULL);
+	//sigaction(SIGRTMIN + 1, &sa, NULL); //test ok
 }
 
 // function propotype
