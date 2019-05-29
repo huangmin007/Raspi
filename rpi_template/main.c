@@ -18,16 +18,34 @@
 
 // sigaction handler
 int running = 1;	//rinning
-void ctrl_c_handler(int signum)
+void signal_handler(int signum)
 {
 	running = 0;
 	printf("signal arg:%d\n", signum);
+
+	switch(signum)
+	{
+		case SIGINT:
+			break;
+
+		case SIGTERM:
+			break;
+
+		case SIGKILL:
+			break;
+
+		case SIGRTMIN + 1:
+			break;
+
+		default:
+			printf("not handler signal:%d", signum);
+	}
 }
 void setup_sigaction()
 {
 	struct sigaction sa =
 	{
-		.sa_handler = ctrl_c_handler,
+		.sa_handler = signal_handler,
 	};
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
