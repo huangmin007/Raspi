@@ -10,7 +10,8 @@
 #include <stdint.h>
 #include <signal.h>
 //#include <wiringPi.h>
-#include "TCPClient.h"
+//#include "TCPClient.h"
+#include "UDPClient.h"
 #include <unistd.h>
 using namespace std;
 
@@ -43,9 +44,10 @@ void loop();
 
 
 // variables
-TCPClient client;
+//TCPClient client;
+UDPClient client;
 
-void receiveDataHandler(char *buffer, uint32_t length)
+void receiveDataHandler(uint8_t *buffer, uint32_t length)
 {
 	char data[length] = {};
 	memcpy(data, buffer, length);
@@ -71,23 +73,24 @@ int main(int argc, char *argv[])
 	uint16_t port = 3000;
 
 	//client = TCPClient();
-	client.ConnectFailedCallback(connectFailedHandler);
+	//client.ConnectFailedCallback(connectFailedHandler);
 	client.ReceiveCallback(receiveDataHandler);
-	client.ConnectCloseCallback(connectCloseHandler);
+	//client.ConnectCloseCallback(connectCloseHandler);
 	client.Connect(addr, port);
-	//setup();
+	
 
 	while(running)
 	{
-		if(!client.Connected())
-		{
-			sleep(3);
-			client.Connect(addr, port);
-			continue;
-		}
+		//if(!client.Connected())
+	//	{
+	//		sleep(3);
+	//		client.Connect(addr, port);
+	//		continue;
+	//	}
 
 	//	loop();
-		client.Send(addr, 14);
+		client.Send((uint8_t*)addr, 14);
+		//client.Send((uint8_t*)addr, 14, addr, 3001);
 		sleep(1);
 	}
 

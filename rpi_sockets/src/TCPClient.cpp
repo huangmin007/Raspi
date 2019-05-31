@@ -7,13 +7,13 @@
 #include "TCPClient.h"
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
+//#include <netinet/in.h>
+//#include <netinet/tcp.h>
 #include <arpa/inet.h>
-#include <netdb.h>
+//#include <netdb.h>
 #include <pthread.h>
 #include <errno.h>
-#include <fcntl.h>
+//#include <fcntl.h>
 
 
 TCPClient::TCPClient()
@@ -133,7 +133,7 @@ int TCPClient::Send(char *data, uint32_t len)
 
 int TCPClient::Close()
 {
-	if(sockfd == -1 && !connected)	return 1;
+	if(sockfd == -1 || !connected)	return 1;
 
 	free(buffer);
 	buffer = NULL;

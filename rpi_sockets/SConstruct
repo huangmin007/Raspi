@@ -1,6 +1,24 @@
 
+'''
+env=Environment(
+			CPPPATH = ["include"],
+			CPPDEFINE = [],
+			LIBS = ["pthread"],
+			LIBPATH = [],
+			CCFLASS = ["-g", "-Wall"]
+			)
 
-Program("main", ["TCPClient.cpp", "main.cpp"],
-	   LIBS = [""],
-	   CCFLASS = ["-g", "-Wall"]
+env.Program("main", ["main.cpp", Glob("src/*.cpp")])
+#OR
+'''
+
+Library("sock", Glob("src/*.cpp"),
+		CPPPATH = ["include"])
+
+Program("main", ["main.cpp"],
+		CPPPATH = ["include"],
+		LIBS = ["pthread", "sock"],
+	  	LIBPATH = ["."],
+	    CCFLASS = ["-g", "-Wall"]
 		)
+
