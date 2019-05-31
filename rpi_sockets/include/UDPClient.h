@@ -44,7 +44,7 @@ class UDPClient
 
 	private:
 		int sockfd = -1;
-		struct sockaddr_in dest_addr;
+		struct sockaddr_in dest_addr;		
 
 		char *remoteAddr;
 		uint16_t remotePort;

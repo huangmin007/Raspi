@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <string.h>
-//#include <errno.h>
+//#include <sys/errno.h>
 #include <unistd.h>
 
 #include "UDPClient.h"
@@ -111,17 +111,30 @@ void *UDPClient::ReceiveData(void *args)
 {
 	UDPClient *client = (UDPClient*)args;
 	
+	struct sockaddr_in from_addr;
+	int addr_len = sizeof(struct sockaddr_in);
+
 	int len, bsize = 1024;
-	client->buffer = (uint8_t *)malloc(sizeof(uint8_t) * (bsize + 1));
+	client->buffer = (uint8_t *)malloc(sizeof(uint8_t) * (bsize));
 
 	while(1)
 	{
-		len = recvfrom(client->sockfd, client->buffer, bsize, 0, NULL, NULL);
+		len = recvfrom(client->sockfd, client->buffer, bsize, 0, (struct sockaddr*)&from_addr, (socklen_t*)&addr_len);
 		if(len > 0)
 		{
 			printf("recv length:%d\n", len);
+			printf("recv from:%u:%u:%u:%u:%hu\n", 
+					((uint8_t*)&(from_addr.sin_addr))[0],
+					((uint8_t*)&(from_addr.sin_addr))[1],
+					((uint8_t*)&(from_addr.sin_addr))[2],
+					((uint8_t*)&(from_addr.sin_addr))[3],
+				   	ntohs(from_addr.sin_port));
+
 			if(client->_ReceiveDataCallback != nullptr)
 				client->_ReceiveDataCallback(client->buffer, len);
+			
+			memset(client->buffer, 0x00, bsize);
+			memset(&from_addr, 0x00, addr_len);
 			continue;
 		}
 	}

@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
 	//	loop();
 		client.Send((uint8_t*)addr, 14);
-		//client.Send((uint8_t*)addr, 14, addr, 3001);
+		client.Send((uint8_t*)addr, 14, addr, 3001);
 		sleep(1);
 	}
 
