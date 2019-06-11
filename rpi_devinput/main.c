@@ -7,6 +7,7 @@
 
 
 #include <stdio.h>
+#include <stdint.h>
 #include <signal.h>
 #include <stdlib.h>  
 #include <linux/input.h>  
@@ -16,6 +17,8 @@
 #include <sys/types.h>  
 #include <sys/stat.h>  
 #include <unistd.h>
+
+#include <X11/Xlib.h>
 
 
 // define macro
@@ -42,7 +45,9 @@ void setup_sigaction()
 // function propotype
 void setup();
 void loop();
-
+void input_mouse();
+void input_mouse0();
+void input_mice();
 
 // variables
 #define MOVE_STEP 10
@@ -56,27 +61,57 @@ int main(int argc, char *argv[])
 {
     setup_sigaction();
 
-    int fd = open("/dev/input/mouse0", O_RDONLY);
-    if(fd < 0)
-    {
-	printf("Failed to open \"/dev/input/mouse0\" \n");
-	exit(1);
-    }
-
-    unsigned char buf[3];
-    while(running)
-    {
-	if(read(fd, buf, sizeof(buf)))
-	{
-	    printf("mouse type=0x%02x x=%d y=%d\n", buf[0], buf[1], buf[2]);
-	}
-    }
+	input_mouse0();
+	//input_mice();
 
     return 0;
 }
 
-// program main
-int main1(int argc, char *argv[])
+void input_mouse()
+{
+	Display *display = XOpenDisplay(0);
+	Window window = 0;
+	Window root = 0;
+
+	int ret = 0, x = 0, y = 0;
+	int d_int = 0, d_uint = 0;
+
+	while(running)
+	{
+		ret = XQueryPointer(display, XDefaultRootWindow(display),
+				&root, &window, &x, &y, &d_int, &d_int, &d_uint);
+
+		if(ret <= 0) continue;
+
+		printf("x=%d y=%d\n", x, y);
+		sleep(0.1);
+	}
+}
+
+//input mosue0
+void input_mouse0()
+{
+	int fd = open("/dev/input/mouse0", O_RDONLY);
+	if(fd < 0)
+	{
+		printf("failed to open \"/dev/input/mouse0\"\n");
+		exit(-1);
+	}
+
+	uint8_t buf[3];
+	while(running)
+	{
+		if(read(fd, buf, sizeof(buf)))
+		{
+			printf("mouse type=0x%02x x=%d y=%d\n", buf[0], buf[1], buf[2]);
+		}
+	}
+
+	close(fd);
+}
+
+//input mice
+void input_mice(int argc, char *argv[])
 {
 	setup_sigaction();
 	
@@ -136,7 +171,6 @@ int main1(int argc, char *argv[])
 
 	close(fd);
 
-	return 0;
 }
 
 
