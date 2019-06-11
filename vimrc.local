@@ -1,0 +1,16 @@
+"/etc/vim
+"user setting
+
+syntax on
+set nu
+set shiftwidth=4
+set showcmd
+set tabstop=4
+set hlsearch
+
+set foldmethod=indent
+set foldcolumn=2
+"set foldlevel=3
+
+set smartindent
+
