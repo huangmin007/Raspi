@@ -113,6 +113,8 @@ bool TCPServer::Stop()
 
 int TCPServer::Send(const uint8_t *data, uint32_t length)
 {
+	if(!running) return -1;
+
 	int count = 0;
 	for(int i = 0; i < MAX_CLIENT_COUNT; i ++)
 	{
@@ -126,6 +128,7 @@ int TCPServer::Send(const uint8_t *data, uint32_t length)
 }
 int TCPServer::Send(const uint8_t *data, uint32_t length, int client_fd)
 {
+	if(!running)	return -1;
 	for(int i = 0; i < MAX_CLIENT_COUNT; i ++)
 	{
 		if(client_fds[i] == client_fd)
