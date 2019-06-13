@@ -14,19 +14,19 @@
 typedef void (*TCPClientStatusErrorCallback)(int status);
 typedef void (*TCPClientConnectFailedCallback)(int code);
 typedef void (*TCPClientConnectCloseCallback)();
-typedef void (*TCPClientReceiveDataCallback)(char *buffer, uint32_t length);
+typedef void (*TCPClientReceiveDataCallback)(const uint8_t *buffer, uint32_t length);
 
 class TCPClient
 {
 	public:
 		TCPClient();
 		~TCPClient();	
-		TCPClient(char *addr, uint16_t port);
+		//TCPClient(char *addr, uint16_t port);
 		int Connect(char *addr, uint16_t port);
 		bool Connected();
-		int Send(char *data, uint32_t len);
+		int Send(const uint8_t *data, uint32_t len);
 		int Close();
-		void ReceiveCallback(void (*fptr)(char *buffer, uint32_t length))
+		void ReceiveCallback(void (*fptr)(const uint8_t *buffer, uint32_t length))
 		{
 			_receiveDataCallback = fptr;
 		}
@@ -52,7 +52,7 @@ class TCPClient
 		uint16_t port;
 
 		pthread_t tid;
-		char *buffer;
+		uint8_t *buffer;
 
 		bool connected = false;
 		

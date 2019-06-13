@@ -7,13 +7,9 @@
 #include "TCPClient.h"
 #include <sys/types.h>
 #include <sys/socket.h>
-//#include <netinet/in.h>
-//#include <netinet/tcp.h>
 #include <arpa/inet.h>
-//#include <netdb.h>
 #include <pthread.h>
 #include <errno.h>
-//#include <fcntl.h>
 
 
 TCPClient::TCPClient()
@@ -34,9 +30,9 @@ TCPClient::~TCPClient()
 }
 
 
-TCPClient::TCPClient(char *addr, uint16_t port)
-{
-}
+//TCPClient::TCPClient(char *addr, uint16_t port)
+//{
+//}
 
 bool TCPClient::Connected()
 {
@@ -97,7 +93,7 @@ void *TCPClient::ReceiveData(void *args)
 	TCPClient *client = (TCPClient *)args;
 	
 	int len, bsize = 1024;
-	client->buffer = (char *)malloc(sizeof(char) * bsize);
+	client->buffer = (uint8_t*)malloc(sizeof(uint8_t) * bsize);
 	
 	while(1)
 	{
@@ -124,7 +120,7 @@ void *TCPClient::ReceiveData(void *args)
 	//return (void*)1;
 }
 
-int TCPClient::Send(char *data, uint32_t len)
+int TCPClient::Send(const uint8_t *data, uint32_t len)
 {
 	if(sockfd == -1 || !connected) return -1;
 	

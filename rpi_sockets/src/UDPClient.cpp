@@ -97,16 +97,6 @@ int UDPClient::Send(uint8_t *buffer, uint32_t length, char *remote_addr, uint16_
 	return sendto(sockfd, buffer, length, 0, (struct sockaddr*)&addr, sizeof(addr));
 }
 
-void UDPClient::ReceiveCallback(void (*fptr)(uint8_t *buffer, uint32_t length))
-{
-	_ReceiveDataCallback = fptr;
-}
-
-void UDPClient::StatusErrorCallback(void (*fptr)(int32_t status))
-{
-	_StatusErrorCallback = fptr;
-}
-
 void *UDPClient::ReceiveData(void *args)
 {
 	UDPClient *client = (UDPClient*)args;

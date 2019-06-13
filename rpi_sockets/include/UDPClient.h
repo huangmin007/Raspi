@@ -12,7 +12,7 @@
 //typedef uint32_t unsigned int;
 
 typedef void (*UDPClientStatusErrorCallback)(int32_t status);
-typedef void (*UDPClientReceiveDataCallback)(uint8_t *buffer, uint32_t length);
+typedef void (*UDPClientReceiveDataCallback)(const uint8_t *buffer, uint32_t length);
 
 
 class UDPClient
@@ -28,15 +28,15 @@ class UDPClient
 		int Send(uint8_t *buffer, uint32_t length, char *remote_addr, uint16_t remote_port);
 		int Close();
 
-		void ReceiveCallback(void (*fptr)(uint8_t *buffer, uint32_t length));
-		//{
-		//	_ReceiveDataCallback = fptr;
-		//}
+		void ReceiveCallback(void (*fptr)(const uint8_t *buffer, uint32_t length))
+		{
+			_ReceiveDataCallback = fptr;
+		}
 
-		void StatusErrorCallback(void (*fptr)(int32_t status));
-		//{
-		//	_StatusErrorCallback = fptr;
-		//}
+		void StatusErrorCallback(void (*fptr)(int32_t status))
+		{
+			_StatusErrorCallback = fptr;
+		}
 
 
 	protected:
