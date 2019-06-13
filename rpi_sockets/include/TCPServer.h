@@ -70,7 +70,7 @@ class TCPServer
 		
 		int listen_fd;
 		int bind_ret;
-		bool running = false;
+		bool sock_listening = false;
 		pthread_t listen_pt;
 		sockaddr_in servaddr;
 

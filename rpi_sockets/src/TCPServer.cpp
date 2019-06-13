@@ -65,7 +65,7 @@ bool TCPServer::Bind(uint16_t port)
 
 bool TCPServer::Start()
 {
-	if(running)	return true;
+	if(sock_listening)	return true;
 	if(listen_fd < 0 || bind_ret < 0)
 	{
 		printf("Start Failed ... \n");
@@ -85,17 +85,17 @@ bool TCPServer::Start()
 		return false;
 	}
 	
-	running = true;
+	sock_listening = true;
 	printf("start...\n");
 	return true;
 }
 
 bool TCPServer::Stop()
 {
-	if(running)
+	if(sock_listening)
 	{
 		printf("stopping...\n");
-		running = false;
+		sock_listening = false;
 
 		DisposeClients();
 
@@ -113,7 +113,7 @@ bool TCPServer::Stop()
 
 int TCPServer::Send(const uint8_t *data, uint32_t length)
 {
-	if(!running) return -1;
+	if(!sock_listening) return -1;
 
 	int count = 0;
 	for(int i = 0; i < MAX_CLIENT_COUNT; i ++)
@@ -128,7 +128,7 @@ int TCPServer::Send(const uint8_t *data, uint32_t length)
 }
 int TCPServer::Send(const uint8_t *data, uint32_t length, int client_fd)
 {
-	if(!running)	return -1;
+	if(!sock_listening)	return -1;
 	for(int i = 0; i < MAX_CLIENT_COUNT; i ++)
 	{
 		if(client_fds[i] == client_fd)
@@ -146,7 +146,7 @@ void *TCPServer::ServerAcceptClient(void *args)
 	sockaddr_in client_addr;
 	socklen_t csize = sizeof(sockaddr_in);
 
-	while(server->running)
+	while(server->sock_listening)
 	{
 		client_fd = accept(server->listen_fd, (struct sockaddr*)&client_addr, &csize);
 		if(client_fd < 0)
@@ -197,11 +197,11 @@ void *TCPServer::ClientReceiveData(void *args)
 	socklen_t csize = sizeof(sockaddr_in);
 	client_addr = *(cps->client_addr);
 
-	bool c_running = true;
+	bool c_sock_listening = true;
 	int length, bsize = CLIENT_BUFFER;
 	uint8_t *buffer = (uint8_t*)malloc(sizeof(uint8_t) * bsize);
 
-	while(c_running)
+	while(c_sock_listening)
 	{
 		length = recvfrom(client_fd, buffer, bsize, 0, 0, 0);
 		//length = recvfrom(client_fd, buffer, bsize, 0, (struct sockaddr*)&client_addr, &csize);
@@ -220,7 +220,7 @@ void *TCPServer::ClientReceiveData(void *args)
 		{
 			printf("client %s:%hu exit...\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 			free(buffer);
-			c_running = false;				
+			c_sock_listening = false;				
 
 			if(cps->server->_ClientStatusChangedCallback)
 				cps->server->_ClientStatusChangedCallback(Status::Client_Out, &client_addr);
