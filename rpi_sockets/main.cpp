@@ -70,7 +70,7 @@ void connectCloseHandler()
 
 
 
-void clientStatusChanged(const Status status, const sockaddr_in *addr)
+void clientStatusChanged(const Ser_status status, const sockaddr_in *addr)
 {
 	printf("client::%s:%hu status:%d\n", inet_ntoa(addr->sin_addr), ntohs(addr->sin_port), status);
 }

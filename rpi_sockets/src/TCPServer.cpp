@@ -183,7 +183,7 @@ void *TCPServer::ServerAcceptClient(void *args)
 		server->client_pts[index] = client_pt;
 
 		if(server->_ClientStatusChangedCallback)
-			server->_ClientStatusChangedCallback(Status::Client_In, &client_addr);
+			server->_ClientStatusChangedCallback(Ser_status::Client_In, &client_addr);
 	}
 }
 
@@ -223,7 +223,7 @@ void *TCPServer::ClientReceiveData(void *args)
 			c_sock_listening = false;				
 
 			if(cps->server->_ClientStatusChangedCallback)
-				cps->server->_ClientStatusChangedCallback(Status::Client_Out, &client_addr);
+				cps->server->_ClientStatusChangedCallback(Ser_status::Client_Out, &client_addr);
 
 			cps->server->DisposeClient(client_fd);
 			bzero(&client_addr, sizeof(client_addr));

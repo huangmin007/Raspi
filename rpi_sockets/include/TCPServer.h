@@ -10,7 +10,7 @@
 #define MAX_CLIENT_COUNT	 254
 #define CLIENT_BUFFER		 1023
 
-enum Status
+enum Ser_status
 {
 	Running,
 	Stopped,
@@ -24,7 +24,7 @@ enum Status
 };
 
 typedef void (*TCPServerStatusChangedCallback)(int status);
-typedef void (*TCPServerClientStatusChangedCallback)(const Status status, const struct sockaddr_in *addr);
+typedef void (*TCPServerClientStatusChangedCallback)(const Ser_status status, const struct sockaddr_in *addr);
 typedef void (*TCPServerClientDataCallback)(const uint8_t *data, uint32_t length, const struct sockaddr_in *addr);
 
 class TCPServer
@@ -44,7 +44,7 @@ class TCPServer
 			_StatusChangedCallback = fptr;
 		}
 
-		void ClientStatusChanged(void (*fptr)(const Status status, const struct sockaddr_in *addr))
+		void ClientStatusChanged(void (*fptr)(const Ser_status status, const struct sockaddr_in *addr))
 		{
 			_ClientStatusChangedCallback = fptr;
 		}
