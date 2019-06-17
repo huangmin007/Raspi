@@ -41,7 +41,7 @@ int UDPClient::Connect(char *remote_addr, uint16_t remote_port)
 		return -1;
 	}
 	
-	int ret = pthread_create(&pid, NULL, ReceiveData, (void *)this);
+	int ret = pthread_create(&pid, NULL, ReceiveDataThread, (void *)this);
 	if(ret != 0)
 	{
 		printf("pthrad create error %s\n", strerror(ret));
@@ -97,7 +97,7 @@ int UDPClient::Send(uint8_t *buffer, uint32_t length, char *remote_addr, uint16_
 	return sendto(sockfd, buffer, length, 0, (struct sockaddr*)&addr, sizeof(addr));
 }
 
-void *UDPClient::ReceiveData(void *args)
+void *UDPClient::ReceiveDataThread(void *args)
 {
 	UDPClient *client = (UDPClient*)args;
 	

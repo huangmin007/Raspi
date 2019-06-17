@@ -78,7 +78,7 @@ bool TCPServer::Start()
 		return false;
 	}
 
-	int ret = pthread_create(&listen_pt, NULL, ServerAcceptClient, (void *)this);
+	int ret = pthread_create(&listen_pt, NULL, ServerAcceptClientThread, (void *)this);
 	if(ret != 0)
 	{
 		printf("Start Failed, Create accept pthread error ... \n");
@@ -138,7 +138,7 @@ int TCPServer::Send(const uint8_t *data, uint32_t length, int client_fd)
 	return -1;
 }
 
-void *TCPServer::ServerAcceptClient(void *args)
+void *TCPServer::ServerAcceptClientThread(void *args)
 {
 	TCPServer *server = (TCPServer*)args;
 
@@ -171,9 +171,13 @@ void *TCPServer::ServerAcceptClient(void *args)
 		cps->server = server;
 		
 		//创建客户端数据接收线程
+		pthread_attr_t attr;
+		pthread_attr_init(&attr);
+		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
 		pthread_t client_pt;
-		//if(pthread_create(&client_pt, NULL, ClientReceiveData, (void *)client_fd) < 0)
-		if(pthread_create(&client_pt, NULL, ClientReceiveData, (void *)cps) < 0)
+		//if(pthread_create(&client_pt, NULL, ClientReceiveDataThread, (void *)cps) < 0)
+		if(pthread_create(&client_pt, &attr, ClientReceiveDataThread, (void *)cps) < 0)
 		{
 			perror("Accept Error, client create pthread error...\n");
 			continue;
@@ -183,11 +187,11 @@ void *TCPServer::ServerAcceptClient(void *args)
 		server->client_pts[index] = client_pt;
 
 		if(server->_ClientStatusChangedCallback)
-			server->_ClientStatusChangedCallback(Ser_status::Client_In, &client_addr);
+			server->_ClientStatusChangedCallback(TCPServer_Status::Client_In, &client_addr);
 	}
 }
 
-void *TCPServer::ClientReceiveData(void *args)
+void *TCPServer::ClientReceiveDataThread(void *args)
 {
 	//int client_fd = *(int*)args;
 	struct client_pthread_args *cps = (struct client_pthread_args*)args;
@@ -209,8 +213,8 @@ void *TCPServer::ClientReceiveData(void *args)
 		{
 			printf("recv from:%s:%hu length:%d\n",inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), length);
 
-			if(cps->server->_ClientDataCallback)
-				cps->server->_ClientDataCallback(buffer, length, &client_addr);
+			if(cps->server->_ClientReceiveDataCallback)
+				cps->server->_ClientReceiveDataCallback(buffer, length, &client_addr);
 			
 			memset(buffer, 0x00, bsize);
 			continue;		
@@ -223,7 +227,7 @@ void *TCPServer::ClientReceiveData(void *args)
 			c_sock_listening = false;				
 
 			if(cps->server->_ClientStatusChangedCallback)
-				cps->server->_ClientStatusChangedCallback(Ser_status::Client_Out, &client_addr);
+				cps->server->_ClientStatusChangedCallback(TCPServer_Status::Client_Out, &client_addr);
 
 			cps->server->DisposeClient(client_fd);
 			bzero(&client_addr, sizeof(client_addr));

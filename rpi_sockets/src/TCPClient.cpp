@@ -29,11 +29,6 @@ TCPClient::~TCPClient()
 	printf("~TCPClient..\n");
 }
 
-
-//TCPClient::TCPClient(char *addr, uint16_t port)
-//{
-//}
-
 bool TCPClient::Connected()
 {
 	return connected;
@@ -67,7 +62,7 @@ int TCPClient::Connect(char *addr, uint16_t port)
 	if(cr < 0)
 	{
 		connected = false;
-		if(_connectFailedCallback != nullptr)	_connectFailedCallback(cr);
+		if(_StatusChangedCallback != nullptr)	_StatusChangedCallback(TCPClientStatus::CONNECT_FAILED);
 
 		return cr;
 	}
@@ -75,27 +70,25 @@ int TCPClient::Connect(char *addr, uint16_t port)
 	connected = true;
 
 	//receive data pthread
-	int ret = pthread_create(&tid, NULL, ReceiveData, (void *)this);
+	int ret = pthread_create(&tid, NULL, ReceiveDataThread, (void *)this);
 	if(ret != 0)
 	{
 		printf("pthread error %s\n", strerror(ret));
 		return 0;
 	}
 
-	// don't use, but I'm down't know why????
-	//pthread_join(tid, NULL);
-
 	return 1;
 }
 
-void *TCPClient::ReceiveData(void *args)
+void *TCPClient::ReceiveDataThread(void *args)
 {
 	TCPClient *client = (TCPClient *)args;
 	
+	bool c_receive = true;
 	int len, bsize = 1024;
 	client->buffer = (uint8_t*)malloc(sizeof(uint8_t) * bsize);
-	
-	while(1)
+		
+	while(c_receive)
 	{
 		if(!client->connected)continue;
 		
@@ -104,16 +97,18 @@ void *TCPClient::ReceiveData(void *args)
 		if(len > 0)
 		{
 			printf("read length: %d\n", len);
-			if(client->_receiveDataCallback != nullptr)
-				client->_receiveDataCallback(client->buffer, len);
+			if(client->_ReceiveDataCallback != nullptr)
+				client->_ReceiveDataCallback(client->buffer, len);
 			continue;
 		}
 		
 		if(!(len < 0 && errno == EAGAIN))
 		{
 			client->Close();
-			if(client->_connectCloseCallback != nullptr)
-				client->_connectCloseCallback();
+			if(client->_StatusChangedCallback != nullptr)
+				client->_StatusChangedCallback(TCPClientStatus::CONNECT_CLOSE);
+
+			c_receive = false;
 		}
 	}
 

@@ -70,7 +70,7 @@ void connectCloseHandler()
 
 
 
-void clientStatusChanged(const Ser_status status, const sockaddr_in *addr)
+void clientStatusChanged(const int status, const sockaddr_in *addr)
 {
 	printf("client::%s:%hu status:%d\n", inet_ntoa(addr->sin_addr), ntohs(addr->sin_port), status);
 }
@@ -97,13 +97,12 @@ int main(int argc, char *argv[])
 	uint16_t port = 3000;
 
 	//client = TCPClient();
-	//client.ConnectFailedCallback(connectFailedHandler);
-	//client.ReceiveCallback(receiveDataHandler);
-	//client.ConnectCloseCallback(connectCloseHandler);
+	//client.StatusChanged(connectFailedHandler);
+	//client.ReceiveData(receiveDataHandler);
 	//client.Connect(addr, port);
 	
 	server.Bind(5000);
-	server.ClientData(clientData);
+	server.ClientReceiveData(clientData);
 	server.ClientStatusChanged(clientStatusChanged);
 	server.Start();
 

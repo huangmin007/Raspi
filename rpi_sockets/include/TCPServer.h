@@ -10,7 +10,7 @@
 #define MAX_CLIENT_COUNT	 254
 #define CLIENT_BUFFER		 1023
 
-enum Ser_status
+enum TCPServer_Status
 {
 	Running,
 	Stopped,
@@ -24,8 +24,8 @@ enum Ser_status
 };
 
 typedef void (*TCPServerStatusChangedCallback)(int status);
-typedef void (*TCPServerClientStatusChangedCallback)(const Ser_status status, const struct sockaddr_in *addr);
-typedef void (*TCPServerClientDataCallback)(const uint8_t *data, uint32_t length, const struct sockaddr_in *addr);
+typedef void (*TCPServerClientStatusChangedCallback)(const int status, const struct sockaddr_in *addr);
+typedef void (*TCPServerClientReceiveDataCallback)(const uint8_t *data, uint32_t length, const struct sockaddr_in *addr);
 
 class TCPServer
 {
@@ -39,25 +39,26 @@ class TCPServer
 		int Send(const uint8_t *data, uint32_t length);
 		int Send(const uint8_t *data, uint32_t length, int client_fd);
 
-		void StatusChanged(void (*fptr)(int status))
+		void ServerStatusChanged(void (*fptr)(int status))
 		{
 			_StatusChangedCallback = fptr;
 		}
 
-		void ClientStatusChanged(void (*fptr)(const Ser_status status, const struct sockaddr_in *addr))
+		void ClientStatusChanged(void (*fptr)(const int status, const struct sockaddr_in *addr))
 		{
 			_ClientStatusChangedCallback = fptr;
 		}
 
-		void ClientData(void (*fptr)(const uint8_t *data, uint32_t length, const struct sockaddr_in *addr))
+		void ClientReceiveData(void (*fptr)(const uint8_t *data, uint32_t length, const struct sockaddr_in *addr))
 		{
-			_ClientDataCallback = fptr;
+			_ClientReceiveDataCallback = fptr;
 		}
 
 
 	protected:
-		static void *ServerAcceptClient(void *args);
-		static void *ClientReceiveData(void *args);
+		static void *ServerAcceptClientThread(void *args);
+		static void *ClientReceiveDataThread(void *args);
+
 		int GetClientIndex();
 		int GetClientIndex(int client_fd);
 		bool DisposeClient(int client_fd);
@@ -76,7 +77,7 @@ class TCPServer
 
 		TCPServerStatusChangedCallback _StatusChangedCallback = nullptr;
 		TCPServerClientStatusChangedCallback _ClientStatusChangedCallback = nullptr;
-		TCPServerClientDataCallback _ClientDataCallback = nullptr;
+		TCPServerClientReceiveDataCallback _ClientReceiveDataCallback = nullptr;
 };
 
 struct client_pthread_args
