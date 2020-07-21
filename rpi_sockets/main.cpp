@@ -32,11 +32,6 @@ void ctrl_c_handler(int signum)
 }
 void setup_sigaction()
 {
-	//struct sigaction sa =
-	//{
-	//	.sa_handler = ctrl_c_handler,
-	//};
-
 	struct sigaction sa;
 	sa.sa_handler = ctrl_c_handler;
 	sigaction(SIGINT, &sa, NULL);
@@ -49,33 +44,27 @@ void loop();
 
 
 // variables
-//TCPClient client;
+TCPClient client;
 //UDPClient client;
-TCPServer server;
+//TCPServer server;
 
-void receiveDataHandler(const uint8_t *buffer, uint32_t length)
+void ReceiveDataHandler(const uint8_t *buffer, uint32_t length)
 {
 	char data[length] = {};
 	memcpy(data, buffer, length);
 	printf("data: %s\n", data);
 }
-void connectFailedHandler(int code)
+void StatusChangedHandler(int status)
 {
-	printf("connect failed : %d\n", code);
-}
-void connectCloseHandler()
-{
-	printf("socket close..\n");
+	printf("Client Status:%d\n", status);
 }
 
 
-
-void clientStatusChanged(const int status, const sockaddr_in *addr)
+void ClientStatusChangedHandler(const int status, const sockaddr_in *addr)
 {
 	printf("client::%s:%hu status:%d\n", inet_ntoa(addr->sin_addr), ntohs(addr->sin_port), status);
 }
-
-void clientData(const uint8_t *data, uint32_t length, const sockaddr_in *addr)
+void ClientReceiveDataHandler(const uint8_t *data, uint32_t length, const sockaddr_in *addr)
 {
 	printf("client data length:%d %s:%hu\n", length, inet_ntoa(addr->sin_addr), ntohs(addr->sin_port));
 	
@@ -96,15 +85,16 @@ int main(int argc, char *argv[])
 	char *addr = "169.254.119.138";
 	uint16_t port = 3000;
 
-	//client = TCPClient();
-	//client.StatusChanged(connectFailedHandler);
-	//client.ReceiveData(receiveDataHandler);
-	//client.Connect(addr, port);
+	client.StatusChanged(StatusChangedHandler);
+	client.ReceiveData(ReceiveDataHandler);
+	client.Connect(addr, port);
 	
-	server.Bind(5000);
-	server.ClientReceiveData(clientData);
-	server.ClientStatusChanged(clientStatusChanged);
-	server.Start();
+	//server.Bind(5000);
+	//server.ClientReceiveData(ClientReceiveDataHandler);
+	//server.ClientStatusChanged(ClientStatusChangedHandler);
+	//server.Start();
+	
+	char hw[16] = "Hello world ...";
 
 	while(running)
 	{
@@ -116,12 +106,17 @@ int main(int argc, char *argv[])
 	//	}
 
 	//	loop();
-		//client.Send((uint8_t*)addr, 14);
+		client.Send((uint8_t*)addr, 14);
 		//client.Send((uint8_t*)addr, 14, addr, 3001);
-		sleep(1);
+		sleep(2);
+		
+
+		client.Send((uint8_t *)hw, 16);
+		sleep(2);
 	}
 
-	server.Stop();
+	//server.Stop();
+	client.Close();
 
 	printf("exit...\n");
 	return 0;
