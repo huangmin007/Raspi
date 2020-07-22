@@ -12,19 +12,20 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <errno.h>
+#include <stdexcept>
 //#include <linux/can.h>
 //#include <linux/can/raw.h>
 
 
 CANSocket::CANSocket()
 {
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if(sockfd == -1)
-	{
-		perror("scoket error...1");
-	}
+	//sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	//if(sockfd == -1)
+	//{
+	//	perror("scoket error...1");
+	//}
 
-	printf("sockfd %d\n", sockfd);
+	//printf("sockfd %d\n", sockfd);
 }
 
 CANSocket::~CANSocket()
@@ -38,16 +39,18 @@ bool CANSocket::Connected()
 	return connected;
 }
 
-int CANSocket::Connect(char *can_addr, uint16_t port)
+int CANSocket::Connect(const char *can_name, uint32_t protocol)
 {
 	printf("sockfd: %d\n", sockfd);
 	if(sockfd == -1)
 	{
-#if COMPILE_USE_SOCK_RAW
-		sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);	//原始套接字协议 raw socket protocol
-#else
-		sockfd = socket(PF_CAN, SOCK_DGRAM, CAN_BCM);	//广播管理协议BCM broadcast manager
-#endif
+		if(protocol == CAN_RAW)
+			sockfd = socket(PF_CAN, SOCK_RAW, CAN_RAW); //原始套接字协议 raw socket protocol
+		else if(protocol == CAN_BCM)
+			sockfd = socket(PF_CAN, SOCK_DGRAM, CAN_BCM);//广播管理协议 broadcast manager
+		else
+			throw std::invalid_argument("protocol error, only support CAN_RAW and CAN_BCM, in <linux/can.h>");
+
 		if(sockfd == -1)
 		{
 			perror("can socket init bad ... \n");
@@ -56,8 +59,16 @@ int CANSocket::Connect(char *can_addr, uint16_t port)
 	}
 	if(connected)	return 1;
 
-	strcpy(ifr.ifr_name, "can0");
-	//ioctl(sockfd, SIOCGIFINDEX, &ifr);	//指定 can0 设备 接收
+	//struct can_filter filter[2];
+	//filter[0].can_id = 0x123;
+	//filter[0].can_mask = CAN_SFF_MASK;
+	//filter[1].can_id = 0x200;
+	//filter[1].can_mask = 0x700;
+	//setsockopt(sockfd, SOL_CAN_RAW, CAN_RAW_FILTER, &filter, sizeof(filter));
+
+	//strcpy(ifr.ifr_name, "can0");
+	strcpy(ifr.ifr_name, can_name);
+	//ioctl(sockfd, SIOCGIFINDEX, &ifr);	//指定接口索引需要调用ioctl(), 比如对于没有错误检查 CAN_RAW 套接字
 
 	addr.can_family = AF_CAN;
 	addr.can_ifindex = ifr.ifr_ifindex;
@@ -99,6 +110,9 @@ void *CANSocket::ReceiveDataThread(void *args)
 		if(!client->connected)continue;
 		
 		len = read(client->sockfd, &frame, sizeof(struct can_frame));
+		//如果套接字跟所有的CAN接口都绑定了（addr.can_index = 0），推荐使用recvfrom(2)获取数据源接口的信息
+		//len = recvfrom(client->sockfd, &frame, sizeof(struce can_frame), 0, 
+		//				(struct sockaddr*)&(client->addr), &sizeof(client->addr));
 		
 		if(len > 0)
 		{

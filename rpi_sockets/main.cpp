@@ -14,10 +14,14 @@
 //#include <netinet/in.h>
 #include <arpa/inet.h>
 //#include <wiringPi.h>
-#include "TCPClient.h"
-#include "UDPClient.h"
-#include "TCPServer.h"
+//#include "TCPClient.h"
+//#include "UDPClient.h"
+//#include "TCPServer.h"
+#include "CANSocket.h"
 #include <unistd.h>
+#include <linux/can.h>
+
+
 using namespace std;
 
 // define macro
@@ -44,15 +48,17 @@ void loop();
 
 
 // variables
-TCPClient client;
+//TCPClient client;
 //UDPClient client;
 //TCPServer server;
+CANSocket client;
+
 
 void ReceiveDataHandler(const uint8_t *buffer, uint32_t length)
 {
-	char data[length] = {};
-	memcpy(data, buffer, length);
-	printf("data: %s\n", data);
+	//char data[length] = {};
+	//memcpy(data, buffer, length);
+	//printf("data: %s\n", data);
 }
 void StatusChangedHandler(int status)
 {
@@ -62,16 +68,16 @@ void StatusChangedHandler(int status)
 
 void ClientStatusChangedHandler(const int status, const sockaddr_in *addr)
 {
-	printf("client::%s:%hu status:%d\n", inet_ntoa(addr->sin_addr), ntohs(addr->sin_port), status);
+	//printf("client::%s:%hu status:%d\n", inet_ntoa(addr->sin_addr), ntohs(addr->sin_port), status);
 }
 void ClientReceiveDataHandler(const uint8_t *data, uint32_t length, const sockaddr_in *addr)
 {
-	printf("client data length:%d %s:%hu\n", length, inet_ntoa(addr->sin_addr), ntohs(addr->sin_port));
+	//printf("client data length:%d %s:%hu\n", length, inet_ntoa(addr->sin_addr), ntohs(addr->sin_port));
 	
-	char c[length + 1] = {};
-	memcpy(c, data, length);
-	c[length + 1] = '\0';
-	printf("%s\n", c);
+	//char c[length + 1] = {};
+	//memcpy(c, data, length);
+	//c[length + 1] = '\0';
+	//printf("%s\n", c);
 }
 
 
@@ -82,12 +88,13 @@ int main(int argc, char *argv[])
 	setup_sigaction();
 
 	//char *addr = "192.168.51.253";
-	char *addr = "169.254.119.138";
-	uint16_t port = 3000;
+	//char *addr = "169.254.119.138";
+	//uint16_t port = 3000;
 
-	client.StatusChanged(StatusChangedHandler);
-	client.ReceiveData(ReceiveDataHandler);
-	client.Connect(addr, port);
+	//client.StatusChanged(StatusChangedHandler);
+	//client.ReceiveData(ReceiveDataHandler);
+	//client.Connect(addr, port);
+	client.Connect("can0", CAN_RAW);
 	
 	//server.Bind(5000);
 	//server.ClientReceiveData(ClientReceiveDataHandler);
@@ -106,12 +113,12 @@ int main(int argc, char *argv[])
 	//	}
 
 	//	loop();
-		client.Send((uint8_t*)addr, 14);
+		//client.Send((uint8_t*)addr, 14);
 		//client.Send((uint8_t*)addr, 14, addr, 3001);
 		sleep(2);
 		
 
-		client.Send((uint8_t *)hw, 16);
+		//client.Send((uint8_t *)hw, 16);
 		sleep(2);
 	}
 

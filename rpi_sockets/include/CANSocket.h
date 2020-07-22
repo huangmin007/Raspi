@@ -28,7 +28,7 @@ class CANSocket
 		CANSocket();
 		~CANSocket();
 		bool Connected();	
-		int Connect(char *addr, uint16_t port);
+		int Connect(const char *can_name, uint32_t protocol);
 
 		int Send(const uint8_t *data, uint32_t len);
 
